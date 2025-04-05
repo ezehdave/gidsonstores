@@ -2,7 +2,6 @@ from django.shortcuts import render,get_object_or_404,redirect
 from .models import *
 from .models import Product
 from django.http import JsonResponse
-import requests
 from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import render, redirect
