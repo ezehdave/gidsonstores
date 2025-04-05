@@ -1,10 +1,11 @@
-
-
 [phases.setup]
 nixPkgs = ["python311", "gcc"]
 
 [phases.install]
-cmds = ["python -m pip install -r requirements.txt"]
+cmds = [
+  "python -m ensurepip --upgrade",  # Ensure pip is installed
+  "python -m pip install -r requirements.txt"
+]
 
 [start]
-cmd = "gunicorn myproject.wsgi:application --bind 0.0.0.0:$PORT"
+cmd = "gunicorn nfms-aqvh.wsgi:application --bind 0.0.0.0:$PORT"
