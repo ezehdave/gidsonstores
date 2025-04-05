@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Cart Success</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <style>
+        .container {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.btn {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: white;
+    background-color: #f26522;
+    border-radius: 5px;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+}
+
+    </style>
+
+    <div class="container">
+        <h1>Item Added to Cart Successfully!</h1>
+        <p>You now have {{ cart_count }} items in your cart.</p>
+        <a href="{% url 'cart_view' %}" class="btn btn-primary" >View Cart</a>
+        <a href="{% url 'main' %}" class="btn btn-secondary">Continue Shopping</a>
+    </div>
+
+</body>
+</html>
