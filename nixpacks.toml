@@ -1,14 +1,15 @@
 [phases.setup]
 nixPkgs = [
-  "python311", 
-  "python311Packages.pip",   # Ensure pip is installed
-  "gcc"
+  "python311",  # Python version
+  "python311Packages.pip",  # Ensure pip is installed
+  "gcc"  # Any other dependencies you need
 ]
 
 [phases.install]
 cmds = [
-  "python -m pip install --upgrade pip",  # Upgrade pip if needed
-  "python -m pip install -r requirements.txt"
+  "python -m ensurepip",  # Ensures pip is installed (as a fallback)
+  "python -m pip install --upgrade pip",  # Upgrades pip to the latest version
+  "python -m pip install -r requirements.txt"  # Install your requirements
 ]
 
 [start]
