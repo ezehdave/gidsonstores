@@ -10,6 +10,9 @@ COPY requirements.txt .
 # Install dependencies
 RUN python -m pip install --upgrade pip
 RUN python -m pip install -r requirements.txt
+COPY . /app/.
+RUN python manage.py collectstatic --noinput
+
 
 # Copy your project files
 COPY . .
