@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+   {% load static %}
+
+   {%  include "header.html" %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        .coupon {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .coupon input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .coupon button {
+            white-space: nowrap;
+            background: #000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .checkout-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input,textarea{
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+        }
+        select{
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+     
+        }
+        .order-summary {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .place-order {
+            width: 100%;
+            padding: 15px;
+            background:#ff6600;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        @media (max-width: 768px) {
+            .checkout-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .checkbox{
+            width: 5%;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Checkout</h2>
+        <p>Returning customer? <a href="#">Click here to log in</a></p>
+        <div class="coupon">
+            <input type="text" placeholder="Enter coupon code">
+            <button>Apply Coupon</button>
+        </div>
+        <div class="checkout-grid">
+            <!-- Billing & Shipping Section -->
+            <div class="billing-shipping">
+                <h3>Billing & Shipping</h3>
+                <form method="POST">
+                    {% csrf_token %}
+                    <label>Receiver’s First Name *</label>
+                    <input type="text" name="first_name" required>
+                
+                    <label>Receiver’s Other Name</label>
+                    <input type="text" name="last_name">
+                
+                    <label>Email Address *</label>
+                    <input type="email" name="email" required>
+                
+                    <label>WhatsApp Number *</label>
+                    <input type="text" name="whatsapp_number" required>
+                
+                    <label>Country / Region *</label>
+                    <input type="text" name="country" required>
+                
+                    <label>State *</label>
+                    <input type="text" name="state" required>
+                
+                    <label>Street Address *</label>
+                    <input type="text" name="street_address" required>
+                
+                    <label>City *</label>
+                    <input type="text" name="city" required>
+                
+                    <label>ZIP Code *</label>
+                    <input type="text" name="zip_code" required>
+                
+                    <label>Phone Number (Optional)</label>
+                    <input type="text" name="phone_number">
+                    <label>
+                        <input type="checkbox" class="checkbox"> I would like to receive emails with discounts & product info
+                    </label>
+                    <label>Create account password *</label>
+                    <input type="password" placeholder="Enter password">
+                    
+                    <label>
+
+                    <h3>Additional information</h3>
+                    <label>Order Notes (optional)</label>
+                    <textarea name="order_notes" rows="4"></textarea placeholder="add any information needed here...">
+                    
+                    <label>
+
+              
+            </div>
+            
+            <!-- Order Summary Section -->
+            <div class="order-summary">
+                <h3>Your Order</h3>
+                <table>
+                    {% for item in cart_items %}
+                    <tr>
+                        <th>Product</th>
+                        <th>Subtotal</th>
+                    </tr>
+                    <tr>
+                        <td>Gold Engagement Ring</td>
+                        <td>{{ item.product.price }}</td>
+                    </tr>
+                    {% endfor %}
+
+                    <tr>
+                        <td>Subtotal</td>
+                        <td>$45,000.00</td>
+                    </tr>
+                    <tr>
+                        <td>Total</td>
+                        <td>$45,000.00</td>
+                    </tr>
+                </table>
+                <p><strong>Payment Method:</strong> Debit/Credit Card (Flutterwave)</p>
+                <label>
+                    <input type="checkbox" required  class="checkbox">  I have read and agree to the website terms and conditions
+                </label>
+                <button class="place-order">PLACE ORDER</button>
+            </form>
+
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

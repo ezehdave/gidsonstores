@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay with Paystack</title>
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+</head>
+<body>
+    <h2>Checkout</h2>
+    <button id="paystack-button">Pay Now</button>
+
+    <script>
+        document.getElementById('paystack-button').addEventListener('click', function () {
+            let handler = PaystackPop.setup({
+                key: "{{ paystack_public_key }}",
+                email: "customer@example.com",
+                amount: 50000, // Amount in kobo (5000 = ₦50.00)
+                currency: "NGN",
+                ref: "txn_" + Math.floor((Math.random() * 1000000000) + 1),
+                callback: function (response) {
+                    fetch(`/payments/verify-payment/${response.reference}/`)
+                        .then(response => response.json())
+                        .then(data => alert(data.message));
+                },
+                onClose: function () {
+                    alert("Transaction was not completed.");
+                }
+            });
+            handler.openIframe();
+        });
+    </script>
+</body>
+</html>
