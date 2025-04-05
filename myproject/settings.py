@@ -52,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # 👈 this line!
+
 ]
 
 PAYSTACK_PUBLIC_KEY = "pk_test_5940289863fc72990fa8c490acc51c422c482df3"
@@ -128,6 +130,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+
 STATICFILES_DIRS =[
     os.path.join(BASE_DIR, 'static')
 ]
