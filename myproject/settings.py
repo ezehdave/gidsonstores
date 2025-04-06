@@ -27,6 +27,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_TRUSTED_ORIGINS = [
+    "gidsonstores-production.up.railway.app",
+]
+
+
 
 # Application definition
 

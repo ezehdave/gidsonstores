@@ -4,6 +4,8 @@
    {% load static %}
 
    {%  include "header.html" %}
+   <meta name="csrf-token" content="{{ csrf_token }}">
+
 
    <body>
       {%  include "slider.html" %}
