@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
    {% load static %}
 
@@ -33,8 +34,7 @@
                                  <p class="price_text">price <span style="color: #262626;">$ {{post.price}}</span></p>
                                  <div class="tshirt_img"><img src=" {{post.imageURL }}"></div>
                                  <div class="btn_main">
-                                    <div class="buy_bt"><a href="{% url 'add_to_cart' post.id %}">Buy Now</a></div>
-                                    <div class="seemore_bt"><a href="#">See More</a></div>
+                                    <button class="buy_bt" onclick="addToCart({{ post.id }})">Buy Now</button>
                                  </div>
                               </div>
                            </div>
@@ -103,7 +103,25 @@
       <!-- sidebar -->
       <script src="{% static 'js/jquery.mCustomScrollbar.concat.min.js'%}"></script>
       <script src="{% static 'js/custom.js' %}"></script>
+
       <script>
+         function getCookie(name) {
+   let cookieValue = null;
+   if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+         const cookie = cookies[i].trim();
+         if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+         }
+      }
+   }
+   return cookieValue;
+}
+
+
+
          function openNav() {
            document.getElementById("mySidenav").style.width = "250px";
          }
@@ -111,6 +129,32 @@
          function closeNav() {
            document.getElementById("mySidenav").style.width = "0";
          }
+         
+
+         function addToCart(productId) {
+            fetch(`/add-to-cart/${productId}/`, {
+
+               method: 'POST',
+               headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': getCookie('csrftoken')
+               },
+               body: JSON.stringify({})
+            })
+           .then(res => res.json())
+           .then(data => {
+              if (data.success) {
+
+                 alert("Item added to cart!");
+                 console.log("Added:", productId);
+               }
+            })
+            .catch(err => console.error(err));
+        }
+
+   
+
+
       </script>
    </body>
 </html>

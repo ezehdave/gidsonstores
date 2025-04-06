@@ -6,19 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping Cart</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
+ 
         .container {
             max-width: 800px;
             margin: auto;
-            background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0px 0 30px 10px #f0f0f0;
         }
         h2 {
             text-align: center;
@@ -156,64 +149,111 @@
     
         </table>
         <div class="coupon">
-            <input type="text" id="coupon" placeholder="Enter coupon code">
-            <button>Apply Coupon</button>
+            {% if discount %}
+            <p>Coupon Applied: <strong>{{ coupon_code }}</strong> ({{ discount }}% off)</p>
+            <p><strong>Discount Amount:</strong> ${{ discount_amount }}</p>
+            <p><strong>New Total:</strong> ${{ new_total }}</p>
+          {% else %}
+          <form method="post" action="{% url 'apply_coupon' %}">
+            {% csrf_token %}
+            <input type="text" id="coupon"  name="coupon_code" placeholder="Enter coupon code">
+            <button type="submit">Apply Coupon</button>
+          </form>
+        {% endif %}
+        {% if coupon_error %}
+       <p style="color: red;">{{ coupon_error }}</p>
+        {% endif %}
+           
             <button onclick="clearCart()" style="background-color: black; color:white;">Empty Cart</button>
         </div>
  
         <div class="checkout">
             <p><strong>Subtotal:</strong><span>$</span>{{cart_total}}</p>
             <p><strong>Shipping:</strong> <a href="#">Calculate Shipping</a></p>
-            <p><strong>Total:</strong><span>$</span>500</p>
+            <p><strong>Total:</strong><span>$</span>{{cart_total}}</p>
+            
             <a href="{% url 'checkout' %}"><button>Proceed to Checkout</button></a>
         </div>
     </div>
 
-    {% if discount %}
-  <p>Coupon Applied: <strong>{{ coupon_code }}</strong> ({{ discount }}% off)</p>
-  <p><strong>Discount Amount:</strong> ${{ discount_amount }}</p>
-  <p><strong>New Total:</strong> ${{ new_total }}</p>
-{% else %}
-  <form method="post" action="{% url 'apply_coupon' %}">
-    {% csrf_token %}
-    <input type="text" name="coupon_code" placeholder="Enter coupon code">
-    <button type="submit">Apply Coupon</button>
-  </form>
-{% endif %}
+  <!-- footer section start -->
+  <div class="footer_section layout_padding">
+    <div class="container">
+       <div class="footer_logo"><a href="index.html"><img  src=" {% static 'images/logo.png'  %}" style="height:60px; margin-top:0px;"></a></div>
+       <div class="input_bt">
+          <input type="text" class="mail_bt" placeholder="Your Email" name="Your Email">
+          <span class="subscribe_bt" id="basic-addon2"><a href="#">Subscribe</a></span>
+       </div>
+       <div class="footer_menu">
+          <ul>
+             <li><a href="#">Best Sellers</a></li>
+             <li><a href="#">Gift Ideas</a></li>
+             <li><a href="#">New Releases</a></li>
+             <li><a href="#">Today's Deals</a></li>
+             <li><a href="#">Customer Service</a></li>
+          </ul>
+       </div>
+       <div class="location_main">Help Line  Number : <a href="#">+1 1800 1200 1200</a></div>
+    </div>
+ </div>
+ <!-- footer section end -->
+ <!-- copyright section start -->
+ <div class="copyright_section">
+    <div class="container">
+       <p class="copyright_text">© 2020 All Rights Reserved. Design by <a href="https://html.design">HERO</a></p>
+    </div>
+ </div>
+ <!-- copyright section end -->
+ <!-- Javascript files-->
+ <script src="{% static 'js/jquery.min.js' %}"></script>
+ <script src="{% static 'js/popper.min.js' %}"></script>
+ <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+ <script src="{% static 'js/jquery-3.0.0.min.js' %}"></script>
+ <script src="{% static 'js/plugin.js' %}"></script>
 
-{% if coupon_error %}
-  <p style="color: red;">{{ coupon_error }}</p>
-{% endif %}
+
+ <!-- sidebar -->
+ <script src="{% static 'js/jquery.mCustomScrollbar.concat.min.js'%}"></script>
+ <script src="{% static 'js/custom.js' %}"></script>
+
+
 
 </body>
 <script>
-   function updateCart(productId, action) {
-    if (!productId) {
-        console.error("Missing product ID");
-        return;
-    }
+    function openNav() {
+   document.getElementById("mySidenav").style.width = "250px";
+ }
+ 
+ function closeNav() {
+   document.getElementById("mySidenav").style.width = "0";
+ }
+function updateCart(productId, action) {
+ if (!productId) {
+     console.error("Missing product ID");
+     return;
+ }
 
-    let url = `/decrease/${productId}/`;
-    if (action === 'increase') url = `/increase/${productId}/`;
-    if (action === 'remove') url = `/remove/${productId}/`;
+ let url = `/decrease/${productId}/`;
+ if (action === 'increase') url = `/increase/${productId}/`;
+ if (action === 'remove') url = `/remove/${productId}/`;
 
-    fetch(url, { method: 'GET' })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('cart-count').innerText = data.cart_count;
+ fetch(url, { method: 'GET' })
+     .then(response => response.json())
+     .then(data => {
+         if (data.success) {
+             document.getElementById('cart-count').innerText = data.cart_count;
 
-                if (action === 'remove' || data.quantity === 0) {
-                    let productRow = document.getElementById(`product-${productId}`);
-                    if (productRow) {
-                        productRow.remove(); // Remove the item from the cart UI
-                    }
-                } else {
-                    document.getElementById(`quantity-${productId}`).innerText = data.quantity;
-                }
-            }
-        })
-        .catch(error => console.error("Error updating cart:", error));
+             if (action === 'remove' || data.quantity === 0) {
+                 let productRow = document.getElementById(`product-${productId}`);
+                 if (productRow) {
+                     productRow.remove(); // Remove the item from the cart UI
+                 }
+             } else {
+                 document.getElementById(`quantity-${productId}`).innerText = data.quantity;
+             }
+         }
+     })
+     .catch(error => console.error("Error updating cart:", error));
 }
 
 </script>

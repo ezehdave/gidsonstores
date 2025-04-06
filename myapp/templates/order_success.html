@@ -1,4 +1,217 @@
 
-<h2>Order Placed Successfully!</h2>
-<p>Thank you for your purchase. You will receive an email confirmation soon.</p>
-<a href="{% url 'main' %}">Return to Home</a>
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart Success</title>
+    <style>
+ 
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        h2 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .coupon {
+            display: flex;
+ 
+            margin-top: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: nowrap; /* Prevents wrapping */
+                 }
+
+/* Default behavior for larger screens */
+.coupon input, 
+.coupon button,
+.coupon a {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+/* Make both elements equal width on small screens */
+@media (max-width: 600px) {
+    .coupon {
+        flex-direction: column; /* Stack elements */
+        align-items: stretch; /* Full width */
+    }
+
+    .coupon input,
+    .coupon button,
+    .coupon a {
+        width: 100%; /* Both take full width */
+    }
+}
+
+      
+
+        .quantity button {
+            background: #ddd;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .checkout {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .checkout button {
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .checkout button:hover {
+            background: white;
+        }
+        .quantity{
+            display: flex;
+            align-items: center;
+            justify-content: start;
+            gap: 8px; /* Space between buttons and number */
+            white-space: nowrap; /* Prevents text from breaking */
+            
+
+        }
+        .container {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.btn {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px 20px;
+    text-decoration: none;
+    color: white;
+    background-color: #f26522;
+    border-radius: 5px;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+}
+
+        
+    </style>
+        {% load static %}
+
+    {% include "header.html" %}
+</head>
+<body>
+
+<div class="container">
+    <h1> Order Placed Successfully!</h1>
+    <p>Thank you for your purchase. You will receive an email confirmation soon.</p>
+    <a href="{% url 'main' %}" class="btn btn-secondary">Return to Home</a>
+    <a href="{% url 'cart_view' %}" class="btn " >Track parcel</a>
+</div>
+  <!-- footer section start -->
+  <div class="footer_section layout_padding">
+    <div class="container">
+       <div class="footer_logo"><a href="index.html"><img  src=" {% static 'images/logo.png'  %}" style="height:60px; margin-top:0px;"></a></div>
+       <div class="input_bt">
+          <input type="text" class="mail_bt" placeholder="Your Email" name="Your Email">
+          <span class="subscribe_bt" id="basic-addon2"><a href="#">Subscribe</a></span>
+       </div>
+       <div class="footer_menu">
+          <ul>
+             <li><a href="#">Best Sellers</a></li>
+             <li><a href="#">Gift Ideas</a></li>
+             <li><a href="#">New Releases</a></li>
+             <li><a href="#">Today's Deals</a></li>
+             <li><a href="#">Customer Service</a></li>
+          </ul>
+       </div>
+       <div class="location_main">Help Line  Number : <a href="#">+1 1800 1200 1200</a></div>
+    </div>
+ </div>
+ <!-- footer section end -->
+ <!-- copyright section start -->
+ <div class="copyright_section">
+    <div class="container">
+       <p class="copyright_text">© 2020 All Rights Reserved. Design by <a href="https://html.design">HERO</a></p>
+    </div>
+ </div>
+ <!-- copyright section end -->
+ <!-- Javascript files-->
+ <script src="{% static 'js/jquery.min.js' %}"></script>
+ <script src="{% static 'js/popper.min.js' %}"></script>
+ <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+ <script src="{% static 'js/jquery-3.0.0.min.js' %}"></script>
+ <script src="{% static 'js/plugin.js' %}"></script>
+
+
+ <!-- sidebar -->
+ <script src="{% static 'js/jquery.mCustomScrollbar.concat.min.js'%}"></script>
+ <script src="{% static 'js/custom.js' %}"></script>
+
+
+</body>
+<script>
+       function openNav() {
+      document.getElementById("mySidenav").style.width = "250px";
+    }
+    
+    function closeNav() {
+      document.getElementById("mySidenav").style.width = "0";
+    }
+   function updateCart(productId, action) {
+    if (!productId) {
+        console.error("Missing product ID");
+        return;
+    }
+
+    let url = `/decrease/${productId}/`;
+    if (action === 'increase') url = `/increase/${productId}/`;
+    if (action === 'remove') url = `/remove/${productId}/`;
+
+    fetch(url, { method: 'GET' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('cart-count').innerText = data.cart_count;
+
+                if (action === 'remove' || data.quantity === 0) {
+                    let productRow = document.getElementById(`product-${productId}`);
+                    if (productRow) {
+                        productRow.remove(); // Remove the item from the cart UI
+                    }
+                } else {
+                    document.getElementById(`quantity-${productId}`).innerText = data.quantity;
+                }
+            }
+        })
+        .catch(error => console.error("Error updating cart:", error));
+}
+
+</script>
+</html>
+
+
+
+

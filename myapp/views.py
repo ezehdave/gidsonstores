@@ -102,7 +102,8 @@ def add_to_cart(request, product_id):
     request.session['cart'] = cart
     request.session.modified = True
 
-    return render(request,'a.html',{'success': True, 'cart_count': sum(cart.values())})
+    return JsonResponse({'success': True, 'cart_count': sum(cart.values())})
+
 
 # Increase Quantity (AJAX)
 def increase_quantity(request, product_id):
