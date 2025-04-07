@@ -157,7 +157,7 @@
           <form method="post" action="{% url 'apply_coupon' %}">
             {% csrf_token %}
             <input type="text" id="coupon"  name="coupon_code" placeholder="Enter coupon code">
-            <button type="submit">Apply Coupon</button>
+            <button type="submit" style="background-color: #ddd; margin-top: 10px;">Apply Coupon</button>
           </form>
         {% endif %}
         {% if coupon_error %}
