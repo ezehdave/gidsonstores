@@ -17,6 +17,10 @@ urlpatterns =[
     path("checkout/", views.checkout, name="checkout"),
     path("order_success/", views.order_success, name="order_success"),
     path('apply-coupon/', views.apply_coupon, name='apply_coupon'),
+    path('register-login/', views.register, name='register-login'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    path('get-cart-count/', views.get_cart_count, name='get_cart_count'),
 
 
 

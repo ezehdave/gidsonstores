@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-#dt#a!h(@bj0vkku=3sxmzvt7@nr3f7yw5)8lt!&p(j9m&@06p
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['gidsonstores-production.up.railway.app']
+ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
     'https://gidsonstores-production.up.railway.app',

@@ -220,6 +220,21 @@
 
 </body>
 <script>
+fetch(`/add-to-cart/${productId}/`, {
+    method: 'POST',
+    headers: {
+        'X-CSRFToken': csrftoken,  // Include CSRF token if not @csrf_exempt
+    }
+})
+.then(response => response.json())
+.then(data => {
+    if (data.success) {
+        updateCartCount();  // 👈 Update cart count after success
+        alert(data.message);
+    }
+});
+
+
     function openNav() {
    document.getElementById("mySidenav").style.width = "250px";
  }

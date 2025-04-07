@@ -15,8 +15,52 @@ from .models import CouponUsage
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Product, Order, OrderItem, Coupon, CouponUsage
-from decimal import Decimal
+from django.views.decorators.csrf import csrf_exempt
 
+
+# views.py
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate, logout
+from django.contrib import messages
+from .forms import *
+
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()  # Save user instance
+            login(request, user)  # Log the user in immediately
+            messages.success(request, "Registration successful.")
+            return redirect('main')  # Change 'home' to your desired url name
+        else:
+            messages.error(request, "Unsuccessful registration. Invalid information.")
+    else:
+        form = RegistrationForm()
+    return render(request, 'register.html', {'form': form})
+
+def login_view(request):
+    if request.method == 'POST':
+        form = LoginForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.info(request, f"You are now logged in as {username}.")
+                return redirect('main')  # Change to your desired url name
+            else:
+                messages.error(request, "Invalid username or password.")
+        else:
+            messages.error(request, "Invalid username or password.")
+    else:
+        form = LoginForm()
+    return render(request, 'register.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    messages.info(request, "You have successfully logged out.")
+    return redirect('main')
 
 
 # Create your views here.
@@ -36,6 +80,8 @@ def countryCategory(request, category_name):
 
     cart = request.session.get('cart', {})
     total_items = sum(cart.values())
+    request.session['cart'] = cart  # Save the updated cart to the session
+    request.session.modified = True  # Mark session as modified
 
     context = {
         'category': category,
@@ -46,7 +92,15 @@ def countryCategory(request, category_name):
 
     return render(request, "category.html", context)
 
-from decimal import Decimal, ROUND_HALF_UP
+
+
+def get_cart_count(request):
+    cart = request.session.get('cart', {})
+    cart_count = sum(cart.values())
+    request.session['cart'] = cart  # Save the updated cart to the session
+    request.session.modified = True  # Mark session as modified
+    return JsonResponse({'cart_count': cart_count})
+
 
 def cart_view(request):
     cart = request.session.get('cart', {})
@@ -93,11 +147,6 @@ def cart_view(request):
 
 
 
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from .models import Product  # adjust this if your model is named differently
-
 @csrf_exempt  # Only use temporarily for testing if CSRF is failing
 def add_to_cart(request, product_id):
     if request.method == 'POST':
@@ -109,7 +158,7 @@ def add_to_cart(request, product_id):
         cart[str(product_id)] = cart.get(str(product_id), 0) + 1
         request.session['cart'] = cart
 
-        return JsonResponse({'success': True, 'message': 'Item added to cart.'})
+        return JsonResponse({'success': True, 'message': 'Item added to cart.' })
     
     return JsonResponse({'success': False, 'message': 'Invalid request method'}, status=400)
 

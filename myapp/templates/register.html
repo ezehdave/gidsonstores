@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Registration</title>
+    <link rel="stylesheet" href="{% static 'styles/css/registration.css' %}">
+    <link rel="stylesheet" href="{% static 'styles/css/owl.carousel.min.css ' %}">
+
+
+</head>
+<body>
+    <div class="container">
+        <!-- Login Form -->
+        <div id="login-form" class="form-container">
+            <h2>Login</h2>
+            <form action="/login/" method="POST">
+                {% csrf_token %}
+                <div class="input-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" name="username" required>
+                    <span class="error-message" id="login-username-error"></span>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                    <span class="error-message" id="login-password-error"></span>
+                </div>
+                <button type="submit">Login</button>
+                <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
+            </form>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="register-form" class="form-container hidden">
+            <h2>Register</h2>
+            <form action="/register/" method="POST">
+                {% csrf_token %}
+        
+                {% for field in form %}
+    <div class="input-group">
+        {{ field.label_tag }}
+        {{ field }}
+        {% if field.errors %}
+            <span class="error-message">{{ field.errors.0 }}</span>
+        {% endif %}
+    </div>
+{% endfor %}
+
+                <button type="submit">Register</button>
+                <p>Already have an account? <a href="#" id="show-login">Login here</a></p>
+            </form>
+        </div>
+    </div>
+
+    
+    <script >
+
+        // scripts.js
+
+document.addEventListener('DOMContentLoaded', function () {
+    const loginForm = document.getElementById('login-form');
+    const registerForm = document.getElementById('register-form');
+    const showRegister = document.getElementById('show-register');
+    const showLogin = document.getElementById('show-login');
+
+    showRegister.addEventListener('click', function (e) {
+        e.preventDefault();
+        loginForm.classList.add('hidden');
+        registerForm.classList.remove('hidden');
+    });
+
+    showLogin.addEventListener('click', function (e) {
+        e.preventDefault();
+        registerForm.classList.add('hidden');
+        loginForm.classList.remove('hidden');
+    });
+});
+
+    </script>
+    
+</body>
+</html>

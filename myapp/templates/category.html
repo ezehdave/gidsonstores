@@ -8,6 +8,9 @@
 
 
    <body>
+      <div id="success-message" class="alert alert-success" style="display: none; position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 1050;">
+         Item added to cart successfully!
+      </div>
       {%  include "slider.html" %}
 
       <!-- banner bg main end -->
@@ -33,7 +36,7 @@
                            <div class="col-lg-4 col-sm-4">
                               <div class="box_main">
                                  <h4 class="shirt_text">{{post.name}}</h4>
-                                 <p class="price_text">price <span style="color: #262626;">$ {{post.price}}</span></p>
+                                 <p class="price_text">price <span style="color: #262626;">{{post.price}}</span></p>
                                  <div class="tshirt_img"><img src=" {{post.imageURL }}"></div>
                                  <div class="btn_main">
                                     <button class="buy_bt" onclick="addToCart({{ post.id }})">Buy Now</button>
@@ -44,6 +47,7 @@
                            {% endfor %}
 
                            {% endif %}
+                           
                       
 
 
@@ -106,7 +110,16 @@
       <script src="{% static 'js/custom.js' %}"></script>
 
       <script>
-         function getCookie(name) {
+         function openNav() {
+           document.getElementById("mySidenav").style.width = "250px";
+         }
+         
+         function closeNav() {
+           document.getElementById("mySidenav").style.width = "0";
+         }
+var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+function getCookie(name) {
    let cookieValue = null;
    if (document.cookie && document.cookie !== '') {
       const cookies = document.cookie.split(';');
@@ -121,37 +134,45 @@
    return cookieValue;
 }
 
+function addToCart(productId) {
+   fetch(`/add-to-cart/${productId}/`, {
+      method: 'POST',
+      headers: {
+         'Content-Type': 'application/json',
+         'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({})
+   })
+   .then(res => res.json())
+   .then(data => {
+      if (data.success) {
+         // Show the success message
+         const successMessage = document.getElementById('success-message');
+         successMessage.style.display = 'block';
 
+         // Hide the message after 3 seconds
+         setTimeout(() => {
+            successMessage.style.display = 'none';
+         }, 3000);
 
-         function openNav() {
-           document.getElementById("mySidenav").style.width = "250px";
-         }
-         
-         function closeNav() {
-           document.getElementById("mySidenav").style.width = "0";
-         }
-         
+         // Update the cart count
+         updateCartCount();
+      }
+   })
+   .catch(err => console.error(err));
+}
 
-         function addToCart(productId) {
-            fetch(`/add-to-cart/${productId}/`, {
+function updateCartCount() {
+    fetch("/get-cart-count/")  // This URL should match your Django URL
+        .then(response => response.json())
+        .then(data => {
+            const cartCountElement = document.getElementById("cart-count");
+            if (cartCountElement) {
+                cartCountElement.textContent = data.cart_count;
+            }
+        });
+}
 
-               method: 'POST',
-               headers: {
-                  'Content-Type': 'application/json',
-                  'X-CSRFToken': getCookie('csrftoken')
-               },
-               body: JSON.stringify({})
-            })
-           .then(res => res.json())
-           .then(data => {
-              if (data.success) {
-
-                 alert("Item added to cart!");
-                 console.log("Added:", productId);
-               }
-            })
-            .catch(err => console.error(err));
-        }
 
    
 
