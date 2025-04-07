@@ -111,4 +111,14 @@ class CouponUsage(models.Model):
     class Meta:
         unique_together = ('user', 'coupon')
 
+class ParcelTracking(models.Model):
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='tracking')
+    tracking_number = models.CharField(max_length=100, unique=True)
+    status = models.CharField(max_length=100, default='Processing')  # e.g. Processing, Shipped, Delivered
+    last_updated = models.DateTimeField(auto_now=True)
+    estimated_delivery = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Tracking {self.tracking_number} for Order {self.order.id}"
+
 

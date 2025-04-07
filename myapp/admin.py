@@ -9,6 +9,8 @@ admin.site.register(OrderItem)
 admin.site.register(Order)
 admin.site.register(Coupon)
 admin.site.register(CouponUsage)
+admin.site.register(ParcelTracking)
+
 
 
 

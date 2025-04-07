@@ -27,6 +27,8 @@
                     <label for="login-password">Password</label>
                     <input type="password" id="login-password" name="password" required>
                     <span class="error-message" id="login-password-error"></span>
+       
+               
                 </div>
                 <button type="submit">Login</button>
                 <p>Don't have an account? <a href="#" id="show-register">Register here</a></p>
@@ -36,7 +38,7 @@
         <!-- Registration Form -->
         <div id="register-form" class="form-container hidden">
             <h2>Register</h2>
-            <form action="/register/" method="POST">
+            <form action="/register-login/" method="POST">
                 {% csrf_token %}
         
                 {% for field in form %}

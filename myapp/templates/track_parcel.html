@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Track Your Parcel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .track-container {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 40px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            border-bottom: 1px solid #dee2e6;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .label {
+            font-weight: 600;
+        }
+
+        @media (max-width: 576px) {
+            .track-container {
+                padding: 20px;
+                margin-top: 20px;
+            }
+
+            h2.section-title {
+                font-size: 1.5rem;
+            }
+        }
+        .input-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+.btn-color  {
+    color: #ffffff;
+    background-color: #f26522;
+}
+.btn-color:hover{
+    background-color: #f26522;
+
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="track-container mx-auto col-12 col-md-10 col-lg-8">
+            <h2 class="text-center section-title">📦 Track Your Parcel</h2>
+
+            <form method="post" class="mb-4">
+                {% csrf_token %}
+                <div class="mb-3", class="input-group">
+                    {{ form.tracking_number.label_tag }}
+                    {{ form.tracking_number }}
+                </div>
+                <button type="submit" class="btn btn-color w-100">Track Parcel</button>
+            </form>
+
+            {% if tracking_info %}
+                <div class="alert alert-info">
+                    <h5><strong>Status:</strong> {{ tracking_info.status }}</h5>
+                    <p><strong>Tracking Number:</strong> {{ tracking_info.tracking_number }}</p>
+                    <p><strong>Estimated Delivery:</strong> {{ tracking_info.estimated_delivery }}</p>
+                    <p><strong>Last Updated:</strong> {{ tracking_info.last_updated }}</p>
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="section-title">🚚 Shipping Details</h5>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p><span class="label">Name:</span> {{ tracking_info.order.first_name }} {{ tracking_info.order.last_name }}</p>
+                            <p><span class="label">Email:</span> {{ tracking_info.order.email }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p><span class="label">Phone:</span> {{ tracking_info.order.phone_number }}</p>
+                            <p><span class="label">Address:</span> {{ tracking_info.order.street_address }}, {{ tracking_info.order.city }}, {{ tracking_info.order.state }}, {{ tracking_info.order.zip_code }}, {{ tracking_info.order.country }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h5 class="section-title">🧾 Order Summary</h5>
+                    <p><span class="label">Total Price:</span> ${{ tracking_info.order.total_price }}</p>
+                    <p><span class="label">Payment Status:</span> {{ tracking_info.order.payment_status|yesno:"Paid,Unpaid" }}</p>
+                </div>
+            {% elif not_found %}
+                <div class="alert alert-danger text-center">
+                    ❌ No parcel found with that tracking number.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

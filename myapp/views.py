@@ -55,7 +55,7 @@ def login_view(request):
             messages.error(request, "Invalid username or password.")
     else:
         form = LoginForm()
-    return render(request, 'register.html', {'form': form})
+    return render(request, 'register.html', {'form': form,"messages.error":messages.error})
 
 def logout_view(request):
     logout(request)
@@ -315,7 +315,6 @@ def order_success(request):
 
 
 
-@login_required
 def apply_coupon(request):
     if request.method == 'POST':
         code = request.POST.get('coupon_code')
@@ -346,6 +345,28 @@ def apply_coupon(request):
 
         messages.success(request, f"Coupon applied! You saved {coupon.discount}%")
         return redirect('cart_view')
+
+
+def track_parcel(request):
+    form = TrackParcelForm()
+    tracking_info = None
+    not_found = False
+
+    if request.method == 'POST':
+        form = TrackParcelForm(request.POST)
+        if form.is_valid():
+            tracking_number = form.cleaned_data['tracking_number']
+            try:
+                tracking_info = ParcelTracking.objects.select_related('order').get(tracking_number=tracking_number)
+                
+            except ParcelTracking.DoesNotExist:
+                not_found = True
+
+    return render(request, 'track_parcel.html', {
+        'form': form,
+        'tracking_info': tracking_info,
+        'not_found': not_found,
+    })
 
 
 
