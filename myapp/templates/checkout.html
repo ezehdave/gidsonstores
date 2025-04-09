@@ -111,7 +111,7 @@
             <div class="billing-shipping">
                 <h3>Billing & Shipping</h3>
                 <form method="POST">
-                    {% csrf_token %}
+                    {% csrf_token %}                    {% csrf_token %}
                     <label>Receiver’s First Name *</label>
                     <input type="text" name="first_name" required>
                 
@@ -138,10 +138,11 @@
                 
                     <label>ZIP Code *</label>
                     <input type="text" name="zip_code" required>
-                
+
                     <label>Phone Number (Optional)</label>
                     <input type="text" name="phone_number">
                     <label>
+                
                         <input type="checkbox" class="checkbox"> I would like to receive emails with discounts & product info
                     </label>
                     <label>Create account password *</label>
@@ -186,7 +187,7 @@
                 <label>
                     <input type="checkbox" required  class="checkbox">  I have read and agree to the website terms and conditions
                 </label>
-                <button class="place-order">PLACE ORDER</button>
+                <button type="submit" class="place-order">PLACE ORDER</button>
             </form>
 
             </div>

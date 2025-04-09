@@ -16,6 +16,16 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from .models import Product, Order, OrderItem, Coupon, CouponUsage
 from django.views.decorators.csrf import csrf_exempt
+import requests
+from django.conf import settings
+from django.shortcuts import redirect, render
+from django.http import JsonResponse
+import uuid
+from django.http import HttpResponse
+from decimal import ROUND_DOWN
+import json
+
+
 
 
 # views.py
@@ -214,26 +224,92 @@ def clear_cart(request):
 
 
 
-def initiate_payment(request):
-    """Renders the payment page"""
-    return render(request, "testing-checkout.html", {"paystack_public_key": settings.PAYSTACK_PUBLIC_KEY})
 
-def verify_payment(request, reference):
-    """Verifies the transaction with Paystack"""
+@login_required
+def initiate_payment(request, ref):
+    # Use ref from URL to get correct order
+    order = get_object_or_404(Order, paystack_ref=ref)
+
+    if not order.total_price or order.total_price == 0:
+        messages.error(request, "Invalid order amount.")
+        return redirect('checkout')
+
+    # Calculate amount in kobo
+    amount_in_kobo = (Decimal(order.total_price) * 100).quantize(Decimal('1'), rounding=ROUND_DOWN)
+
+    # Debug logs
+    print("=== PAYSTACK DEBUG ===")
+    print("Email:", order.email)
+    print("Reference:", order.paystack_ref)
+    print("Amount in kobo:", amount_in_kobo)
+    print("Callback URL:", request.build_absolute_uri("/verify-payment/"))
+
+    paystack_data = {
+        "amount": int(amount_in_kobo),
+        "email": order.email,
+        "reference": order.paystack_ref,
+        "callback_url": request.build_absolute_uri("/verify-payment/"),
+    }
+
+    headers = {
+        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    # Make Paystack API request
+    response = requests.post(
+        "https://api.paystack.co/transaction/initialize",
+        headers=headers,
+        data=json.dumps(paystack_data),
+    )
+
+    if response.status_code == 200:
+        response_data = response.json()
+        return redirect(response_data["data"]["authorization_url"])
+    else:
+        print("Paystack error:", response.text)
+        messages.error(request, "Payment initialization failed. Please try again.")
+        return redirect('checkout')
+
+
+
+
+
+
+@login_required
+def verify_payment(request):
+    reference = request.GET.get("reference")
+
+    if not reference:
+        return render(request, "payment_error.html", {"error": "No payment reference provided."})
+
+    # Call Paystack verify endpoint
     url = f"https://api.paystack.co/transaction/verify/{reference}"
-    headers = {"Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"}
-    
+    headers = {
+        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+    }
+
     response = requests.get(url, headers=headers)
     data = response.json()
 
     if data["status"] and data["data"]["status"] == "success":
-        return JsonResponse({"message": "Payment successful!", "status": "success"})
-    
-    return JsonResponse({"message": "Payment verification failed!", "status": "failed"})
+        # 🎯 THIS is where your code fits
+        order = Order.objects.get(paystack_ref=reference)
+        order.paid = True
+        order.save()
+
+        return render(request, "order_success.html", {"order": order})
+    else:
+        return render(request, "payment_error.html", {"error": "Payment verification failed."})
 
 
 
 
+from django.views.decorators.http import require_http_methods
+import uuid
+from decimal import Decimal
+@login_required
+@require_http_methods(["GET", "POST"])
 def checkout(request):
     cart = request.session.get('cart', {})
     
@@ -241,71 +317,88 @@ def checkout(request):
         messages.warning(request, "Your cart is empty!")
         return redirect('cart_view')
 
-    # Ensure cart total is a Decimal type
-    cart_total = Decimal(str(request.session.get('cart_total', '0')))
-    coupon_code = request.session.get('coupon_code', None)
-    products = Product.objects.filter(id__in=cart.keys())
-    cart_items = []
-    
-    # Prepare the cart items list with Decimal for price and total calculations
-    for product in products:
-        quantity = cart.get(str(product.id), 0)
-        cart_items.append({
-            'product': product,
-            'quantity': quantity,
-            'price': Decimal(product.price),  # Make sure price is a Decimal
-            'total_price': Decimal(product.price) * quantity  # Make sure total is a Decimal
+    if request.method == "GET":
+        # ✅ Build the cart_items list for the template
+        cart_items = []
+        for product_id, quantity in cart.items():
+            try:
+                product = Product.objects.get(id=product_id)
+                cart_items.append({'product': product, 'quantity': quantity})
+            except Product.DoesNotExist:
+                continue  # Skip any products that no longer exist
+
+        # ✅ Render checkout page with cart_items included in context
+        return render(request, 'checkout.html', {
+            'cart': cart,
+            'cart_total': request.session.get('cart_total', 0),
+            'cart_items': cart_items,
         })
 
-    if request.method == "POST":
-        # Save the order details as Decimal for total_price
-        order = Order.objects.create(
-            user=request.user if request.user.is_authenticated else None,
-            first_name=request.POST.get('first_name'),
-            last_name=request.POST.get('last_name'),
-            email=request.POST.get('email'),
-            whatsapp_number=request.POST.get('whatsapp_number'),
-            country=request.POST.get('country'),
-            state=request.POST.get('state'),
-            street_address=request.POST.get('street_address'),
-            city=request.POST.get('city'),
-            zip_code=request.POST.get('zip_code'),
-            phone_number=request.POST.get('phone_number'),
-            create_account=request.POST.get('create_account') == 'on',
-            order_notes=request.POST.get('order_notes'),
-            total_price=cart_total,  # Ensure cart total is passed as Decimal
+    # POST request: process form submission
+    cart_total = Decimal(str(request.session.get('cart_total', '0')))
+    paystack_ref = str(uuid.uuid4())
+
+    # Get form data
+    first_name = request.POST.get('first_name')
+    last_name = request.POST.get('last_name')
+    email = request.POST.get('email')
+    phone_number = request.POST.get('phone_number')
+    country = request.POST.get('country')
+    state = request.POST.get('state')
+    street_address = request.POST.get('street_address')
+    city = request.POST.get('city')
+    zip_code = request.POST.get('zip_code')
+    order_notes = request.POST.get('order_notes')
+    create_account = request.POST.get('create_account') == 'on'
+
+    # Validate
+    if not first_name or not last_name or not email or not phone_number or not street_address or not city or not zip_code:
+        messages.error(request, "All required fields must be filled out.")
+        return redirect('checkout')
+
+    # Save order
+    order = Order.objects.create(
+        user=request.user,
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        phone_number=phone_number,
+        country=country,
+        state=state,
+        street_address=street_address,
+        city=city,
+        zip_code=zip_code,
+        create_account=create_account,
+        order_notes=order_notes,
+        total_price=cart_total,
+        paystack_ref=paystack_ref,
+    )
+
+    for product_id, quantity in cart.items():
+        product = Product.objects.get(id=product_id)
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            quantity=quantity,
+            price=product.price,
         )
 
-        # Add order items to the database with proper price and quantity
-        for item in cart_items:
-            OrderItem.objects.create(
-                order=order,
-                product=item['product'],
-                quantity=item['quantity'],
-                price=item['price'],  # Use Decimal for price
-            )
+    coupon_code = request.session.get('coupon_code', '')
+    if coupon_code and request.user.is_authenticated:
+        coupon = Coupon.objects.filter(code=coupon_code).first()
+        if coupon:
+            CouponUsage.objects.create(user=request.user, coupon=coupon)
 
-        # Handle coupon usage
-        if coupon_code and request.user.is_authenticated:
-            coupon = Coupon.objects.filter(code=coupon_code).first()
-            if coupon:
-                CouponUsage.objects.create(user=request.user, coupon=coupon)
+    # Clear cart
+    request.session['cart'] = {}
+    request.session.pop('discount', None)
+    request.session.pop('coupon_code', None)
+    request.session.pop('cart_total', None)
+    request.session.modified = True
 
-        # Clear cart after placing the order
-        request.session['cart'] = {}
-        request.session.pop('discount', None)
-        request.session.pop('coupon_code', None)
-        request.session.pop('cart_total', None)
-        request.session.modified = True
+    print("Redirecting with ref:", paystack_ref)
+    return redirect('initiate_payment', ref=paystack_ref)
 
-        messages.success(request, "Your order has been placed successfully!")
-        return redirect("order_success")
-
-    return render(request, "checkout.html", {
-        'cart_items': cart_items,
-        'cart_total': cart_total,
-        'cart_count': sum(cart.values()),
-    })
 
 
 
@@ -358,7 +451,7 @@ def track_parcel(request):
             tracking_number = form.cleaned_data['tracking_number']
             try:
                 tracking_info = ParcelTracking.objects.select_related('order').get(tracking_number=tracking_number)
-                
+
             except ParcelTracking.DoesNotExist:
                 not_found = True
 

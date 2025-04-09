@@ -28,7 +28,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://gidsonstores-production.up.railway.app',
+    'https://gidsonstores-production.up.railway.app','https://gidsonglobalstore.com','https://www.gidsonglobalstore.com'
 ]
 
 

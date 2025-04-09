@@ -11,9 +11,7 @@ urlpatterns =[
     path('remove/<int:product_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('clear-cart/', views.clear_cart, name='clear_cart'),
 
-    path("checkout1/", views.initiate_payment, name="checkout1"),
-
-    path("verify-payment/<str:reference>/", views.verify_payment, name="verify_payment"),
+    path('initiate-payment/<str:ref>/', views.initiate_payment, name='initiate_payment'),
     path("checkout/", views.checkout, name="checkout"),
     path("order_success/", views.order_success, name="order_success"),
     path('apply-coupon/', views.apply_coupon, name='apply_coupon'),
@@ -22,6 +20,7 @@ urlpatterns =[
     path('logout/', views.logout_view, name='logout'),
     path('get-cart-count/', views.get_cart_count, name='get_cart_count'),
     path('track-parcel/', views.track_parcel, name='track_parcel'),
+    path('verify-payment/', views.verify_payment, name='verify_payment'),
 
 
 
