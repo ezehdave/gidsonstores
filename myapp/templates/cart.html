@@ -131,7 +131,7 @@
                         </div>
                     </td>
              
-                    <td >$<span>{{item.price}}</span></td>
+                    <td >₦<span>{{item.price}}</span></td>
                     <td>  
                         <button onclick="updateCart('{{ item.id }}', 'remove')" style="background-color:white; text-align: left;">❌</button>
 
@@ -151,8 +151,8 @@
         <div class="coupon">
             {% if discount %}
             <p>Coupon Applied: <strong>{{ coupon_code }}</strong> ({{ discount }}% off)</p>
-            <p><strong>Discount Amount:</strong> ${{ discount_amount }}</p>
-            <p><strong>New Total:</strong> ${{ new_total }}</p>
+            <p><strong>Discount Amount:</strong> ₦{{ discount_amount }}</p>
+            <p><strong>New Total:</strong> ₦{{ new_total }}</p>
           {% else %}
           <form method="post" action="{% url 'apply_coupon' %}">
             {% csrf_token %}
@@ -168,9 +168,9 @@
         </div>
  
         <div class="checkout">
-            <p><strong>Subtotal:</strong><span>$</span>{{cart_total}}</p>
+            <p><strong>Subtotal:</strong><span>₦</span>{{cart_total}}</p>
             <p><strong>Shipping:</strong> <a href="#">Calculate Shipping</a></p>
-            <p><strong>Total:</strong><span>$</span>{{cart_total}}</p>
+            <p><strong>Total:</strong><span>₦</span>{{cart_total}}</p>
             
             <a href="{% url 'checkout' %}"><button>Proceed to Checkout</button></a>
         </div>

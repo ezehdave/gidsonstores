@@ -170,20 +170,20 @@
                     </tr>
                     <tr>
                         <td>Gold Engagement Ring</td>
-                        <td>{{ item.product.price }}</td>
+                        <td>₦ {{ item.product.price }} × {{ item.quantity }}</td>
                     </tr>
                     {% endfor %}
 
                     <tr>
                         <td>Subtotal</td>
-                        <td>$45,000.00</td>
+                        <td>₦ {{cart_total}}</td>
                     </tr>
                     <tr>
                         <td>Total</td>
-                        <td>$45,000.00</td>
+                        <td>₦ {{cart_total}}</td>
                     </tr>
                 </table>
-                <p><strong>Payment Method:</strong> Debit/Credit Card (Flutterwave)</p>
+                <p><strong>Payment Method:</strong> Debit/Credit Card (paystack)</p>
                 <label>
                     <input type="checkbox" required  class="checkbox">  I have read and agree to the website terms and conditions
                 </label>
